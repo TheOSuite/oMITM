@@ -1,6 +1,6 @@
-# eMITM
+# oMITM
 
-eMITM is a basic Man-in-the-Middle (MITM) proxy built in Python using `http.server`, `socket`, `ssl`, `requests`, `cryptography`, and `tkinter`. It is designed to intercept, log, and perform basic analysis on HTTP and HTTPS traffic.
+oMITM is a basic Man-in-the-Middle (MITM) proxy built in Python using `http.server`, `socket`, `ssl`, `requests`, `cryptography`, and `tkinter`. It is designed to intercept, log, and perform basic analysis on HTTP and HTTPS traffic.
 
 **Disclaimer:** This tool is intended for educational purposes, security testing of your own applications/network, and understanding web traffic. Using MITM techniques on networks or systems without explicit permission may be illegal and unethical. The author is not responsible for any misuse.
 
@@ -26,7 +26,7 @@ eMITM is a basic Man-in-the-Middle (MITM) proxy built in Python using `http.serv
 
 ## Installation
 
-1.  **Save the code:** Save the provided Python code as a `.py` file (e.g., `eMITM.py`).
+1.  **Save the code:** Save the provided Python code as a `.py` file (e.g., `oMITM.py`).
 2.  **Install dependencies:** Open your terminal or command prompt and install the required libraries using pip:
 
     ```bash
@@ -35,11 +35,11 @@ eMITM is a basic Man-in-the-Middle (MITM) proxy built in Python using `http.serv
 
 ## Generating and Trusting the CA Certificate
 
-When you run eMITM for the first time, it will automatically generate a new Certificate Authority (CA) certificate (`ca.crt`) and a corresponding private key (`ca.key`) in the same directory as the script.
+When you run oMITM for the first time, it will automatically generate a new Certificate Authority (CA) certificate (`ca.crt`) and a corresponding private key (`ca.key`) in the same directory as the script.
 
 To intercept HTTPS traffic without your browser/applications showing certificate errors, you **MUST** install and trust this `ca.crt` file in your operating system's certificate store or your browser's trusted root certificates list.
 
-* eMITM provides **"View CA Cert"** and **"Trust CA Info"** buttons in the GUI to help you locate the certificate file and provide general instructions.
+* oMITM provides **"View CA Cert"** and **"Trust CA Info"** buttons in the GUI to help you locate the certificate file and provide general instructions.
 * The exact steps to trust a CA vary depending on your operating system and browser. Please refer to their official documentation.
     * **Windows:** Search for "Manage computer certificates" or "Internet Options" -> Content tab -> Certificates.
     * **macOS:** Keychain Access -> System or Login keychain.
@@ -50,11 +50,11 @@ To intercept HTTPS traffic without your browser/applications showing certificate
 ## Running the Proxy
 
 1.  Open your terminal or command prompt.
-2.  Navigate to the directory where you saved `eMITM.py`.
+2.  Navigate to the directory where you saved `oMITM.py`.
 3.  Run the script:
 
     ```bash
-    python eMITM.py
+    python oMITM.py
     ```
 4.  The Tkinter GUI window should appear.
 
@@ -73,14 +73,14 @@ To intercept HTTPS traffic without your browser/applications showing certificate
 
 ## Analysis Features Explained
 
-* **Real-time Findings:** As traffic is logged, `eMITM` automatically checks:
+* **Real-time Findings:** As traffic is logged, `oMITM` automatically checks:
     * If the URL path matches common API patterns.
     * For missing common security response headers (HSTS, CSP, X-Frame-Options, etc.).
     * For headers that reveal server/technology information.
     * For missing `HttpOnly`, `Secure`, and `SameSite` flags in `Set-Cookie` headers.
     * If sensitive data keywords (`password`, `token`, etc.) appear in URL path segments or query parameters.
     * If potentially sensitive paths (`/login`, `/admin`, etc.) are accessed over unencrypted HTTP.
-* **On-Demand Body Analysis:** When you click "Analyze Request Body" or "Analyze Response Body" in the viewer, `eMITM` checks the selected body for:
+* **On-Demand Body Analysis:** When you click "Analyze Request Body" or "Analyze Response Body" in the viewer, `oMITM` checks the selected body for:
     * Sensitive data keywords.
     * Patterns indicating error messages or stack traces.
     * For JSON or XML structures and attempts to find keywords within them.
