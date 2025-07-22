@@ -1,5 +1,8 @@
 # oMITM
 
+![GitHub License](https://img.shields.io/github/license/TheOSuite/oXSS)
+![Python Version](https://img.shields.io/badge/python-3.13-blue)
+
 oMITM is a basic Man-in-the-Middle (MITM) proxy built in Python using `http.server`, `socket`, `ssl`, `requests`, `cryptography`, and `tkinter`. It is designed to intercept, log, and perform basic analysis on HTTP and HTTPS traffic.
 
 **Disclaimer:** This tool is intended for educational purposes, security testing of your own applications/network, and understanding web traffic. Using MITM techniques on networks or systems without explicit permission may be illegal and unethical. The author is not responsible for any misuse.
