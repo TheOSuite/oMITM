@@ -58,7 +58,7 @@ def is_cert_expired(cert_path):
             if not cert_data:
                 return True
             cert = load_pem_x509_certificate(cert_data)
-            return cert.not_valid_after < datetime.datetime.utcnow() + datetime.timedelta(days=1)
+            return cert.not_valid_after < datetime.datetime.now(datetime.UTC) + datetime.timedelta(days=1)
     except FileNotFoundError:
         return True
     except ValueError as e:
@@ -77,7 +77,7 @@ def create_or_load_ca():
             loaded_ca_key = serialization.load_pem_private_key(ca_key_data, password=None)
             if loaded_ca_cert.public_key().public_bytes(encoding=serialization.Encoding.PEM, format=serialization.PublicFormat.SubjectPublicKeyInfo) != loaded_ca_key.public_key().public_bytes(encoding=serialization.Encoding.PEM, format=serialization.PublicFormat.SubjectPublicKeyInfo):
                  raise ValueError("CA certificate and key do not match.")
-            if loaded_ca_cert.not_valid_after < datetime.datetime.utcnow():
+            if loaded_ca_cert.not_valid_after < datetime.datetime.now(datetime.UTC):
                 print("[!] Existing CA certificate has expired. Please delete ca.crt and ca.key to regenerate.")
                 messagebox.showerror("CA Error", "Existing CA certificate has expired. Please delete ca.crt and ca.key and restart the application to regenerate the CA.")
                 sys.exit(1)
@@ -96,7 +96,7 @@ def create_or_load_ca():
     print("Generating new CA...")
     ca_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
     subject = issuer = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, "MyProxy MITM CA")])
-    ca_cert_builder = (x509.CertificateBuilder().subject_name(subject).issuer_name(issuer).public_key(ca_key.public_key()).serial_number(x509.random_serial_number()).not_valid_before(datetime.datetime.utcnow() - datetime.timedelta(days=1)).not_valid_after(datetime.datetime.utcnow() + datetime.timedelta(days=3650)).add_extension(x509.BasicConstraints(ca=True, path_length=None), critical=True).add_extension(x509.KeyUsage(key_cert_sign=True, crl_sign=True, digital_signature=False, content_commitment=False, key_encipherment=False, data_encipherment=False, key_agreement=False, encipher_only=False, decipher_only=False), critical=True))
+    ca_cert_builder = (x509.CertificateBuilder().subject_name(subject).issuer_name(issuer).public_key(ca_key.public_key()).serial_number(x509.random_serial_number()).not_valid_before(datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=1)).not_valid_after(datetime.datetime.now(datetime.UTC) + datetime.timedelta(days=3650)).add_extension(x509.BasicConstraints(ca=True, path_length=None), critical=True).add_extension(x509.KeyUsage(key_cert_sign=True, crl_sign=True, digital_signature=False, content_commitment=False, key_encipherment=False, data_encipherment=False, key_agreement=False, encipher_only=False, decipher_only=False), critical=True))
     new_ca_cert = ca_cert_builder.sign(ca_key, hashes.SHA256())
     with open(CA_CERT_PATH, "wb") as f: f.write(new_ca_cert.public_bytes(serialization.Encoding.PEM))
     with open(CA_KEY_PATH, "wb") as f: f.write(ca_key.private_bytes(encoding=serialization.Encoding.PEM, format=serialization.PrivateFormat.PKCS8, encryption_algorithm=serialization.NoEncryption()))
@@ -123,8 +123,8 @@ def open_ca_cert():
 
 def generate_cert(hostname, ttl_days_param):
     print(f"[*] Generating certificate for {hostname} with TTL {ttl_days_param} days")
-    not_before = datetime.datetime.utcnow() - datetime.timedelta(days=1)
-    not_after = datetime.datetime.utcnow() + datetime.timedelta(days=int(ttl_days_param))
+    not_before = datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=1)
+    not_after = datetime.datetime.now(datetime.UTC) + datetime.timedelta(days=int(ttl_days_param))
 
     key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
 
@@ -781,8 +781,8 @@ adapter = HTTPAdapter(max_retries=retry_strategy)
 session.mount('http://', adapter)
 session.mount('https://', adapter)
 
-proxy_host_var = tk.StringVar(value=PROXY_HOST)
-proxy_port_var = tk.StringVar(value=str(PROXY_PORT))
+proxy_host_var = None
+proxy_port_var = None
 last_results = None
 
 traffic_listbox = None
@@ -1171,11 +1171,14 @@ class TrafficViewerDialog(tk.Toplevel):
 
 # --- GUI Setup ---
 def create_gui():
-    global root, traffic_listbox, start_button, stop_button, run_batch_analysis_button
+    global root, traffic_listbox, start_button, stop_button, run_batch_analysis_button, proxy_host_var, proxy_port_var
 
     root = tk.Tk()
     root.title("MyProxy MITM with Analysis")
     root.geometry("1000x700") # Increased default size
+
+    proxy_host_var = tk.StringVar(value=PROXY_HOST)
+    proxy_port_var = tk.StringVar(value=str(PROXY_PORT))
 
     root.protocol("WM_DELETE_WINDOW", on_closing)
 
